@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzzfeed Style Quiz</title>
+    <style>
+        .quiz-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .question {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .choices {
+            list-style-type: none;
+            padding: 0;
+        }
+        .choices li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .choice-img {
+            max-width: 150px; /* 画像のサイズを調整 */
+            height: auto;
+            cursor: pointer;
+            border: 10px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        .correct {
+            border-color: #68af15 !important;
+        }
+        .incorrect {
+            border-color: #e32 !important;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            background-color:#e40c78 ;
+            text-align: center;
+        }
+        .marker {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-right: 10px;
+        }
+        .correct-marker {
+            color: #68af15;
+        }
+        .incorrect-marker {
+            color: #e32;
+        }
+        .result-img {
+            max-width: 128px;
+            height: auto;
+            margin: 20px auto 0 auto;
+            text-align: center;
+        }
+        .restart-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>【簡単】あなたの動物マニア度は？</h1>
+
+    <div class="question-container">
+        <!-- Quiz questions will be dynamically inserted here クイズの問題は、ここに挿入されます -->
+    </div>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "「うさぎ」はどれ？",
+            choices: [
+                { img: "buzz_19.jpg", score: 3, correct: true },
+                { img: "buzz_01.jpg", score: 2, correct: false },
+                { img: "buzz_18.jpg", score: 1, correct: false }
+            ]
+        },
+        {
+            question: "「スイカ」はどれ？",
+            choices: [
+                { img: "buzz_10.jpg", score: 1, correct: false },
+                { img: "buzz_12.jpg", score: 3, correct: true },
+                { img: "buzz_11.jpg", score: 2, correct: false }
+            ]
+        },
+        {
+            question: "「お月さん」はどれ？",
+            choices: [
+                { img: "buzz_07.jpg", score: 3, correct: true },
+                { img: "buzz_08.jpg", score: 1, correct: false },
+                { img: "buzz_05.jpg", score: 2, correct: false }
+            ]
+        },
+        {
+            question: "「アヒル」はどれ？",
+            choices: [
+                { img: "buzz_13.jpg", score: 1, correct: false },
+                { img: "buzz_16.jpg", score: 3, correct: true },
+                { img: "buzz_15.jpg", score: 2, correct: false }
+            ]
+        },
+        {
+            question: "「うさぎ」でないのはどれ？",
+            choices: [
+                { img: "buzz_17.jpg", score: 2, correct: false },
+                { img: "buzz_14.jpg", score: 3, correct: true },
+                { img: "buzz_04.jpg", score: 1, correct: false }
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let totalScore = 0;
+
+    const questionContainer = document.querySelector('.question-container');
+    const resultDiv = document.getElementById('result');
+
+    function loadQuestion() {
+        // Clear previous question 前の問題をクリア
+        questionContainer.innerHTML = '';
+        resultDiv.innerHTML = '';
+
+        if (currentQuestionIndex < quizData.length) {
+            const currentQuestion = quizData[currentQuestionIndex];
+
+            // Create question text 問題を作成
+            const questionText = document.createElement('div');
+            questionText.classList.add('question');
+            questionText.textContent = currentQuestion.question;
+            questionContainer.appendChild(questionText);
+
+            // Create answer choices with images 選択肢の画像を作成
+            const choiceList = document.createElement('ul');
+            choiceList.classList.add('choices');
+
+            currentQuestion.choices.forEach((choice, index) => {
+                const listItem = document.createElement('li');
+
+                // Create marker (レ or ✖) マーカーを作成
+                const marker = document.createElement('span');
+                marker.classList.add('marker');
+
+                const choiceImg = document.createElement('img');
+                choiceImg.src = choice.img;
+                choiceImg.alt = choice.text || 'Choice Image';
+                choiceImg.classList.add('choice-img');
+
+                choiceImg.addEventListener('click', function() {
+                    handleAnswer(choiceImg, choice, currentQuestion, marker);
+                });
+
+                listItem.appendChild(marker); // Add marker before the image 画像の前にマーカーをつける
+                listItem.appendChild(choiceImg);
+                choiceList.appendChild(listItem);
+            });
+
+            questionContainer.appendChild(choiceList);
+        } else {
+            showResult();
+        }
+    }
+
+    function handleAnswer(imgElement, selectedChoice, currentQuestion, marker) {
+        // Disable all image choices after selection ２重選択の防止
+        const images = document.querySelectorAll('.choice-img');
+        images.forEach(img => img.style.pointerEvents = 'none');
+
+        // Check if the selected choice is correct or incorrect 選択が正解か不正解か調査
+        if (selectedChoice.correct) {
+            imgElement.classList.add('correct');
+            marker.textContent = '✔'; // チェックマーク "✔"
+            marker.classList.add('correct-marker');
+        } else {
+            imgElement.classList.add('incorrect');
+            marker.textContent = '✖'; // チェックマーク "✖"
+            marker.classList.add('incorrect-marker');
+
+            // Highlight the correct answer 正解をハイライトする
+            highlightCorrectAnswer(currentQuestion);
+        }
+
+        // Add score based on the choice スコア加算
+        totalScore += selectedChoice.score;
+
+        // xxxx秒後に次の問題を描写する
+        setTimeout(function() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }, 1500); // １秒 = 1000
+    }
+
+    function highlightCorrectAnswer(currentQuestion) {
+        const images = document.querySelectorAll('.choice-img');
+        images.forEach((img, index) => {
+            if (currentQuestion.choices[index].correct) {
+                const marker = img.previousElementSibling;
+                marker.textContent = '✔'; // チェックマーク "✔"
+                marker.classList.add('correct-marker');
+                img.classList.add('correct');
+            }
+        });
+    }
+
+    function showResult() {
+        questionContainer.style.display = 'none';
+
+        let resultText = '';
+        let resultImg = '';
+
+        if (totalScore <= 7) {
+            resultText = "まだまだです！動物に興味はないのかしら？";
+            resultImg = "buzz_a.gif";
+        } else if (totalScore <= 12) {
+            resultText = "普通の動物マニアです。毎日動物園に行きましょう！";
+            resultImg = "buzz_d.gif";
+        } else {
+            resultText = "素晴らしい！あなたはアニマルマスターだ！";
+            resultImg = "buzz_c.gif";
+        }
+
+        resultDiv.textContent = resultText;
+
+        // 結果画面を表示
+        const resultImageElement = document.createElement('img');
+        resultImageElement.src = resultImg;
+        resultImageElement.alt = resultText;
+        resultImageElement.classList.add('result-img');
+        resultDiv.appendChild(resultImageElement);
+
+        // 「やり直し」ボタンを追加
+        const restartButton = document.createElement('button');
+        restartButton.textContent = "やり直す";
+        restartButton.classList.add('restart-button');
+        restartButton.addEventListener('click', restartQuiz);
+        resultDiv.appendChild(restartButton);
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        totalScore = 0;
+        questionContainer.style.display = 'block';
+        loadQuestion();
+    }
+
+    // 開始
+    loadQuestion();
+</script>
+
+</body>
+</html>
