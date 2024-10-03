@@ -78,7 +78,7 @@
     <h1>【簡単】あなたの動物マニア度は？</h1>
 
     <div class="question-container">
-        <!-- Quiz questions will be dynamically inserted here クイズの問題は、ここに挿入されます -->
+        <!-- クイズの問題は、ここに挿入されます -->
     </div>
 
     <div id="result" class="result"></div>
@@ -135,27 +135,27 @@
     const resultDiv = document.getElementById('result');
 
     function loadQuestion() {
-        // Clear previous question 前の問題をクリア
+        // 前の問題をクリア
         questionContainer.innerHTML = '';
         resultDiv.innerHTML = '';
 
         if (currentQuestionIndex < quizData.length) {
             const currentQuestion = quizData[currentQuestionIndex];
 
-            // Create question text 問題を作成
+            // 問題を作成
             const questionText = document.createElement('div');
             questionText.classList.add('question');
             questionText.textContent = currentQuestion.question;
             questionContainer.appendChild(questionText);
 
-            // Create answer choices with images 選択肢の画像を作成
+            // 選択肢の画像を作成
             const choiceList = document.createElement('ul');
             choiceList.classList.add('choices');
 
             currentQuestion.choices.forEach((choice, index) => {
                 const listItem = document.createElement('li');
 
-                // Create marker (レ or ✖) マーカーを作成
+                // (レ or ✖) マーカーを作成
                 const marker = document.createElement('span');
                 marker.classList.add('marker');
 
@@ -168,7 +168,7 @@
                     handleAnswer(choiceImg, choice, currentQuestion, marker);
                 });
 
-                listItem.appendChild(marker); // Add marker before the image 画像の前にマーカーをつける
+                listItem.appendChild(marker); // 画像の前にマーカーをつける
                 listItem.appendChild(choiceImg);
                 choiceList.appendChild(listItem);
             });
@@ -180,11 +180,11 @@
     }
 
     function handleAnswer(imgElement, selectedChoice, currentQuestion, marker) {
-        // Disable all image choices after selection ２重選択の防止
+        // ２重選択の防止
         const images = document.querySelectorAll('.choice-img');
         images.forEach(img => img.style.pointerEvents = 'none');
 
-        // Check if the selected choice is correct or incorrect 選択が正解か不正解か調査
+        // 選択が正解か不正解か調査
         if (selectedChoice.correct) {
             imgElement.classList.add('correct');
             marker.textContent = '✔'; // チェックマーク "✔"
@@ -194,11 +194,11 @@
             marker.textContent = '✖'; // チェックマーク "✖"
             marker.classList.add('incorrect-marker');
 
-            // Highlight the correct answer 正解をハイライトする
+            // 正解をハイライトする
             highlightCorrectAnswer(currentQuestion);
         }
 
-        // Add score based on the choice スコア加算
+        // スコア加算
         totalScore += selectedChoice.score;
 
         // xxxx秒後に次の問題を描写する
